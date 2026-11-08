@@ -1,6 +1,8 @@
 #!/bin/bash
 # Lanzador para subir a GitHub automáticamente
 cd "$(dirname "$0")"
-echo "Subiendo proyecto a GitHub..."
-git push -u origin main
+echo "Sincronizando con GitHub..."
+git pull --rebase origin main
+echo "Subiendo cambios..."
+git push origin main
 read -p "Presiona Enter para cerrar esta ventana..."
