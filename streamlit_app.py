@@ -7,6 +7,7 @@ Permite contrastar de manera interactiva dos documentos Word (.docx),
 aislando la sección del Plan de Estudios y comparando exclusivamente temas principales.
 """
 
+import csv
 import io
 import os
 import pandas as pd
@@ -101,10 +102,10 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🏷️ Categorías Oficiales")
     st.markdown("""
-    - 🟢 **Coincidencia Literal** ($\ge 95\%$)
-    - 🔵 **Similitud Alta** ($72\% - 94.9\%$)
-    - 🟡 **Relación Temática** ($42\% - 71.9\%$)
-    - ⚪ **Sin Relación** ($< 42\%$)
+    - 🟢 **Coincidencia Literal** (≥ 95%)
+    - 🔵 **Similitud Alta** (72% - 94.9%)
+    - 🟡 **Relación Temática** (42% - 71.9%)
+    - ⚪ **Sin Relación** (< 42%)
     """)
     
     st.markdown("---")
