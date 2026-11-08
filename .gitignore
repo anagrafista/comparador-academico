@@ -1,0 +1,22 @@
+# Archivos de sistema de macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+.venv/
+
+# Archivos temporales de pruebas o informes generados
+*.csv
+*.txt
+!requirements.txt
+!test_data/*.txt
