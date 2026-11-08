@@ -108,9 +108,14 @@ with st.sidebar:
     - ⚪ **Sin Relación** (< 42%)
     """)
     
+    if "uploader_key" not in st.session_state:
+        st.session_state["uploader_key"] = 0
+
     st.markdown("---")
     if st.button("🔄 Reiniciar / Limpiar sesión"):
+        nuevo_id = st.session_state.get("uploader_key", 0) + 1
         st.session_state.clear()
+        st.session_state["uploader_key"] = nuevo_id
         st.rerun()
 
 # ==============================================================================
@@ -130,7 +135,7 @@ with col_doc1:
     archivo1 = st.file_uploader(
         "Cargar archivo Word (.docx)",
         type=["docx"],
-        key="doc1_uploader",
+        key=f"doc1_uploader_{st.session_state['uploader_key']}",
         help="Seleccione el primer documento Word (.docx)"
     )
 
@@ -140,7 +145,7 @@ with col_doc2:
     archivo2 = st.file_uploader(
         "Cargar archivo Word (.docx)",
         type=["docx"],
-        key="doc2_uploader",
+        key=f"doc2_uploader_{st.session_state['uploader_key']}",
         help="Seleccione el segundo documento Word (.docx)"
     )
 
