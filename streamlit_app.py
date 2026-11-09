@@ -26,101 +26,200 @@ st.set_page_config(
     page_title="Comparador Académico 2.0",
     page_icon="🎓",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Estilos CSS profesionales
+# Estilos CSS - Paleta Biovita (Azul Eléctrico + Verde Lima + Blanco + Pizarra)
 st.markdown("""
 <style>
-    /* Tipografía y contenedor principal */
-    .block-container {
-        padding-top: 1.8rem;
-        padding-bottom: 2.5rem;
+    /* Ocultar barra lateral izquierda por completo */
+    [data-testid="stSidebar"], section[data-testid="stSidebar"] {
+        display: none !important;
     }
-    
-    /* Hero Header */
-    .hero-banner {
-        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%);
-        border-radius: 16px;
-        padding: 24px 30px;
-        color: #FFFFFF;
-        box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25);
-        margin-bottom: 1.8rem;
-    }
-    .hero-title {
-        font-size: 2.1rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .hero-badge {
-        font-size: 0.75rem;
-        background: rgba(255, 255, 255, 0.2);
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-weight: 600;
-        vertical-align: middle;
-    }
-    .hero-subtitle {
-        font-size: 1.02rem;
-        color: #E2E8F0;
-        margin-bottom: 0px;
-        max-width: 900px;
-        line-height: 1.45;
+    [data-testid="collapsedControl"] {
+        display: none !important;
     }
 
-    /* Tarjetas de Métricas (KPIs) */
-    .kpi-card {
+    /* Contenedor principal con fondo suave */
+    .stApp {
+        background-color: #F8FAF7;
+    }
+    .block-container {
+        padding-top: 1.5rem;
+        padding-bottom: 4rem;
+        max-width: 1250px;
+    }
+
+    /* Hero Banner estilo Biovita */
+    .hero-banner {
         background: #FFFFFF;
-        border-radius: 12px;
-        padding: 16px 14px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-        text-align: center;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        border-radius: 24px;
+        padding: 32px 38px;
+        border: 1px solid #E6ECE1;
+        box-shadow: 0 4px 25px rgba(15, 23, 42, 0.04);
+        margin-bottom: 1.8rem;
     }
-    .kpi-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-    }
-    .kpi-value {
-        font-size: 1.8rem;
+    .hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #D3F33D;
+        color: #0F172A;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.85rem;
         font-weight: 800;
+        letter-spacing: 0.3px;
+        margin-bottom: 14px;
+    }
+    .hero-title {
+        font-size: 2.35rem;
+        font-weight: 900;
+        color: #0F172A;
+        letter-spacing: -0.8px;
+        line-height: 1.18;
+        margin-bottom: 10px;
+    }
+    .hero-title span.accent-blue {
+        color: #2251FF;
+    }
+    .hero-subtitle {
+        font-size: 1.05rem;
+        color: #64748B;
+        line-height: 1.55;
+        max-width: 920px;
+        margin: 0;
+    }
+
+    /* Paneles de carga de archivos */
+    .upload-box {
+        background: #FFFFFF;
+        border-radius: 20px;
+        padding: 22px;
+        border: 1px solid #E6ECE1;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+        margin-bottom: 1rem;
+    }
+    .upload-label {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0F172A;
+        margin-bottom: 4px;
+    }
+    .upload-desc {
+        font-size: 0.88rem;
+        color: #64748B;
+        margin-bottom: 12px;
+    }
+
+    /* Botón Primario: Verde Lima Biovita */
+    div[data-testid="stButton"] button[kind="primary"] {
+        background-color: #D3F33D !important;
+        color: #0F172A !important;
+        font-weight: 800 !important;
+        font-size: 1.15rem !important;
+        padding: 16px 36px !important;
+        border-radius: 16px !important;
+        border: 1px solid #C4E530 !important;
+        box-shadow: 0 4px 16px rgba(211, 243, 61, 0.45) !important;
+        letter-spacing: 0.3px !important;
+        transition: all 0.2s ease !important;
+        margin-top: 8px;
+    }
+    div[data-testid="stButton"] button[kind="primary"]:hover {
+        background-color: #C5E731 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(211, 243, 61, 0.6) !important;
+    }
+
+    /* Botón Secundario Grande de Reinicio al fondo */
+    div[data-testid="stButton"] button[kind="secondary"] {
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        font-weight: 800 !important;
+        font-size: 1.12rem !important;
+        padding: 18px 36px !important;
+        border-radius: 18px !important;
+        border: 2px solid #E2E8F0 !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+        transition: all 0.25s ease !important;
+    }
+    div[data-testid="stButton"] button[kind="secondary"]:hover {
+        background-color: #F0F4FF !important;
+        color: #2251FF !important;
+        border-color: #2251FF !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(34, 81, 255, 0.15) !important;
+    }
+
+    /* Tarjetas de Métricas (KPIs) estilo Biovita */
+    .kpi-card-white {
+        background: #FFFFFF;
+        border-radius: 18px;
+        padding: 20px 14px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        text-align: center;
+    }
+    .kpi-card-lime {
+        background: #D3F33D;
+        border-radius: 18px;
+        padding: 20px 14px;
+        color: #0F172A;
+        box-shadow: 0 4px 16px rgba(211, 243, 61, 0.25);
+        text-align: center;
+    }
+    .kpi-card-blue {
+        background: #2251FF;
+        border-radius: 18px;
+        padding: 20px 14px;
+        color: #FFFFFF;
+        box-shadow: 0 4px 16px rgba(34, 81, 255, 0.25);
+        text-align: center;
+    }
+    .kpi-card-yellow {
+        background: #FEF9C3;
+        border-radius: 18px;
+        padding: 20px 14px;
+        border: 1px solid #FEF08A;
+        text-align: center;
+    }
+    .kpi-card-gray {
+        background: #F1F5F9;
+        border-radius: 18px;
+        padding: 20px 14px;
+        border: 1px solid #E2E8F0;
+        text-align: center;
+    }
+    .kpi-num {
+        font-size: 2.1rem;
+        font-weight: 900;
         line-height: 1.1;
         margin-bottom: 4px;
     }
-    .kpi-label {
-        font-size: 0.8rem;
-        font-weight: 600;
+    .kpi-title {
+        font-size: 0.78rem;
+        font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: #64748B;
     }
 
-    /* Badges de categorías */
-    .badge-pill {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.78rem;
+    /* Pestañas (Tabs) estilo Biovita */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 12px;
+        border-bottom: 2px solid #E6ECE1;
+        margin-bottom: 1.5rem;
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-size: 1.02rem;
         font-weight: 700;
-        letter-spacing: 0.3px;
+        color: #64748B;
+        border-radius: 12px 12px 0 0;
+        padding: 10px 20px;
     }
-    .badge-literal { background-color: #DEF7EC; color: #03543F; border: 1px solid #84E1BC; }
-    .badge-alta { background-color: #E1EFFE; color: #1E429F; border: 1px solid #A4CAFE; }
-    .badge-tematica { background-color: #FEF08A; color: #713F12; border: 1px solid #FDE047; }
-    .badge-sin { background-color: #F3F4F6; color: #374151; border: 1px solid #D1D5DB; }
-
-    /* Tarjeta de inspección léxica */
-    .inspection-card {
-        background: #F8FAFC;
-        border-radius: 12px;
-        border: 1px solid #E2E8F0;
-        padding: 20px;
-        margin-top: 10px;
+    .stTabs [aria-selected="true"] {
+        color: #2251FF !important;
+        border-bottom-color: #2251FF !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -164,13 +263,11 @@ def leer_docx(fuente_archivo):
     doc = docx.Document(target)
     lineas = []
 
-    # Extraer de párrafos
     for p in doc.paragraphs:
         texto = p.text.strip()
         if texto:
             lineas.append(texto)
 
-    # Extraer de tablas
     for tabla in doc.tables:
         for fila in tabla.rows:
             for celda in fila.cells:
@@ -219,7 +316,6 @@ def _es_descarte_o_descripcion(linea):
         if re.search(r"\b(el alumno|los estudiantes|aprenderá|analizará|comprenderá)\b", linea_lower):
             return True
 
-    # Descartar subtemas de tercer nivel (1.1.1, a), b))
     if re.match(r"^\s*(?:\d+\.\d+\.\d+|[a-zA-Z]\))\s*", linea):
         return True
 
@@ -306,11 +402,11 @@ def extraer_temas(lineas_o_texto, nombre_doc="Documento"):
         if _es_descarte_o_descripcion(linea):
             continue
 
-        # Excluir subtemas de tercer nivel (1.1.1, 1.1.2)
+        # Excluir subtemas 1.1.1
         if re.match(r"^\s*\d{1,2}\.\d{1,2}\.\d{1,2}", linea):
             continue
 
-        # Tema numérico de segundo nivel (1.1, 1.2)
+        # Tema 1.1
         match_tema_num = re.match(r"^\s*(?:Tema\s+)?(\d{1,2}\.\d{1,2})\s*[\.\:\-\–\)]?\s*(.*)$", linea, re.IGNORECASE)
         if match_tema_num:
             t_num = match_tema_num.group(1)
@@ -336,7 +432,7 @@ def extraer_temas(lineas_o_texto, nombre_doc="Documento"):
                     })
             continue
 
-        # Módulo numérico (1., 2.)
+        # Módulo 1.
         match_mod_num = re.match(r"^\s*(?:M[oó]dulo\s+|Bloque\s+)?(\d{1,2})\s*[\.\:\-\–\)]\s*(.*)$", linea, re.IGNORECASE)
         if match_mod_num:
             m_num = match_mod_num.group(1)
@@ -395,12 +491,12 @@ def normalizar_texto(texto):
 
 
 def extraer_palabras_clave(texto_normalizado):
-    """Filtra palabras de parada (stopwords) y conserva términos significativos."""
+    """Filtra stopwords y conserva palabras significativas."""
     return {p for p in texto_normalizado.split() if p not in PALABRAS_PARADA_ES and len(p) >= 3}
 
 
 def _obtener_raiz(palabra):
-    """Extrae la raíz morfológica aproximada de un término en español."""
+    """Extrae raíz morfológica en español."""
     p = palabra.lower()
     sufijos = [
         "izaciones", "izacion", "amiento", "amientos", "acionales", "acional",
@@ -531,63 +627,61 @@ def comparar_temas(temas_doc1, temas_doc2):
 
 
 # ==============================================================================
-# 4. INTERFAZ DE USUARIO STREAMLIT
+# 4. INTERFAZ DE USUARIO STREAMLIT (ESTILO BIOVITA)
 # ==============================================================================
 
-# Control de reinicio de cargadores de archivos
+# Clave de reinicio de cargadores de archivos
 if "uploader_key" not in st.session_state:
     st.session_state["uploader_key"] = 0
 
-with st.sidebar:
-    st.image("https://img.icons8.com/fluency/96/diploma.png", width=65)
-    st.markdown("### Comparador Académico 2.0")
-    st.caption("Sistema de Homologación Curricular")
-    st.markdown("---")
-
-    st.markdown("#### 📌 Reglas de Extracción")
-    st.markdown("""
-    - **Ámbito exclusivo:** Analiza únicamente el **Plan de Estudios**.
-    - **Módulos:** Numeración de primer nivel (`1.`, `2.`).
-    - **Temas principales:** Viñetas de segundo nivel (`1.1`, `1.2`).
-    - **Subtemas (`1.1.1`):** **Estrictamente excluidos**.
-    """)
-
-    st.markdown("---")
-    st.markdown("#### 🏷️ Categorías y Umbrales")
-    st.markdown("""
-    - 🟢 **Coincidencia Literal** (≥ 95%)
-    - 🔵 **Similitud Alta** (72% - 94.9%)
-    - 🟡 **Relación Temática** (42% - 71.9%)
-    - ⚪ **Sin Relación** (< 42%)
-    """)
-
-    st.markdown("---")
-    if st.button("🔄 Reiniciar / Limpiar sesión", use_container_width=True):
-        nuevo_id = st.session_state.get("uploader_key", 0) + 1
-        st.session_state.clear()
-        st.session_state["uploader_key"] = nuevo_id
-        st.rerun()
-
-# Hero Banner
+# Hero Banner estilo Biovita
 st.markdown("""
 <div class="hero-banner">
+    <div class="hero-pill">
+        ✨ EVALUACIÓN Y HOMOLOGACIÓN CURRICULAR
+    </div>
     <div class="hero-title">
-        <span>🎓 COMPARADOR ACADÉMICO 2.0</span>
-        <span class="hero-badge">Web Edition</span>
+        Comparador Académico <span class="accent-blue">2.0</span>
     </div>
     <p class="hero-subtitle">
         Contraste algorítmico y matemático entre títulos temáticos contenidos exclusivamente en el
-        <strong>Plan de Estudios</strong> de dosieres y programas académicos en formato Word (.docx).
+        <strong>Plan de Estudios</strong> de dosieres en formato Word (.docx).
     </p>
 </div>
 """, unsafe_allow_html=True)
+
+# Acordeón limpio con reglas de extracción y umbrales (reemplaza a la barra lateral)
+with st.expander("ℹ️ Ver Reglas de Extracción Curricular y Criterios Oficiales"):
+    col_reg1, col_reg2 = st.columns(2)
+    with col_reg1:
+        st.markdown("**📌 Reglas de Extracción:**")
+        st.markdown("""
+        - **Ámbito exclusivo:** Analiza únicamente el **Plan de Estudios** (descarta admisiones, claustrales y metodología).
+        - **Módulos:** Numeración de primer nivel (`1.`, `2.`).
+        - **Temas principales:** Viñetas de segundo nivel (`1.1`, `1.2`).
+        - **Subtemas (`1.1.1`):** **Estrictamente excluidos**.
+        """)
+    with col_reg2:
+        st.markdown("**🏷️ Categorías y Umbrales Oficiales:**")
+        st.markdown("""
+        - 🟢 **Coincidencia Literal (≥ 95%):** *Posible sustitución (Coincidencia exacta)*
+        - 🔵 **Similitud Alta (72% - 94.9%):** *Posible sustitución (Alta coincidencia textual)*
+        - 🟡 **Relación Temática (42% - 71.9%):** *Requiere revisión complementaria*
+        - ⚪ **Sin Relación (< 42%):** *Coincidencia insuficiente*
+        """)
+
+st.markdown("")
 
 # Paneles de subida estilizados
 col_doc1, col_doc2 = st.columns(2)
 
 with col_doc1:
-    st.markdown("##### 📄 Documento 1 (Origen / Base)")
-    st.caption("Dosier del programa cuyos temas se desean contrastar:")
+    st.markdown("""
+    <div class="upload-box">
+        <div class="upload-label">📄 Documento 1 (Origen / Base)</div>
+        <div class="upload-desc">Dosier del programa cuyos temas se desean contrastar:</div>
+    </div>
+    """, unsafe_allow_html=True)
     archivo1 = st.file_uploader(
         "Cargar archivo Word (.docx)",
         type=["docx"],
@@ -596,8 +690,12 @@ with col_doc1:
     )
 
 with col_doc2:
-    st.markdown("##### 📄 Documento 2 (Comparación / Destino)")
-    st.caption("Dosier del programa contra el cual se evaluarán las equivalencias:")
+    st.markdown("""
+    <div class="upload-box">
+        <div class="upload-label">📄 Documento 2 (Comparación / Destino)</div>
+        <div class="upload-desc">Dosier del programa contra el cual se evaluarán las equivalencias:</div>
+    </div>
+    """, unsafe_allow_html=True)
     archivo2 = st.file_uploader(
         "Cargar archivo Word (.docx)",
         type=["docx"],
@@ -663,53 +761,53 @@ if "analisis" in st.session_state:
     ])
 
     # --------------------------------------------------------------------------
-    # TAB 1: TABLERO & GRÁFICOS
+    # TAB 1: TABLERO & GRÁFICOS (ESTILO BIOVITA)
     # --------------------------------------------------------------------------
     with tab_dashboard:
         st.markdown("#### 📈 Indicadores Clave de Convalidación")
 
-        # Tarjetas KPI visuales
+        # Tarjetas KPI con la estética Biovita
         kp1, kp2, kp3, kp4, kp5, kp6 = st.columns(6)
         with kp1:
             st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-value" style="color: #1E3A8A;">{resumen['total_temas_doc1']}</div>
-                <div class="kpi-label">Temas Doc 1</div>
+            <div class="kpi-card-white">
+                <div class="kpi-num" style="color: #2251FF;">{resumen['total_temas_doc1']}</div>
+                <div class="kpi-title" style="color: #64748B;">Temas Doc 1</div>
             </div>
             """, unsafe_allow_html=True)
         with kp2:
             st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-value" style="color: #1E3A8A;">{resumen['total_temas_doc2']}</div>
-                <div class="kpi-label">Temas Doc 2</div>
+            <div class="kpi-card-white">
+                <div class="kpi-num" style="color: #2251FF;">{resumen['total_temas_doc2']}</div>
+                <div class="kpi-title" style="color: #64748B;">Temas Doc 2</div>
             </div>
             """, unsafe_allow_html=True)
         with kp3:
             st.markdown(f"""
-            <div class="kpi-card" style="border-top: 3px solid #10B981;">
-                <div class="kpi-value" style="color: #059669;">{resumen['coincidencias_literales']}</div>
-                <div class="kpi-label">🟢 Literales</div>
+            <div class="kpi-card-lime">
+                <div class="kpi-num">{resumen['coincidencias_literales']}</div>
+                <div class="kpi-title">🟢 Literales</div>
             </div>
             """, unsafe_allow_html=True)
         with kp4:
             st.markdown(f"""
-            <div class="kpi-card" style="border-top: 3px solid #3B82F6;">
-                <div class="kpi-value" style="color: #2563EB;">{resumen['similitudes_altas']}</div>
-                <div class="kpi-label">🔵 Altas</div>
+            <div class="kpi-card-blue">
+                <div class="kpi-num">{resumen['similitudes_altas']}</div>
+                <div class="kpi-title">🔵 Altas</div>
             </div>
             """, unsafe_allow_html=True)
         with kp5:
             st.markdown(f"""
-            <div class="kpi-card" style="border-top: 3px solid #F59E0B;">
-                <div class="kpi-value" style="color: #D97706;">{resumen['relaciones_tematicas']}</div>
-                <div class="kpi-label">🟡 Temáticas</div>
+            <div class="kpi-card-yellow">
+                <div class="kpi-num" style="color: #854D0E;">{resumen['relaciones_tematicas']}</div>
+                <div class="kpi-title" style="color: #854D0E;">🟡 Temáticas</div>
             </div>
             """, unsafe_allow_html=True)
         with kp6:
             st.markdown(f"""
-            <div class="kpi-card" style="border-top: 3px solid #94A3B8;">
-                <div class="kpi-value" style="color: #64748B;">{resumen['sin_coincidencias']}</div>
-                <div class="kpi-label">⚪ Sin Relación</div>
+            <div class="kpi-card-gray">
+                <div class="kpi-num" style="color: #475569;">{resumen['sin_coincidencias']}</div>
+                <div class="kpi-title" style="color: #64748B;">⚪ Sin Relación</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -727,7 +825,6 @@ if "analisis" in st.session_state:
         st.markdown("#### 📊 Distribución Visual de Coincidencias")
         col_chart1, col_chart2 = st.columns([1, 1.3])
 
-        # Datos para gráficos
         df_distribucion = pd.DataFrame({
             "Categoría": ["Literal (≥95%)", "Alta (72-94%)", "Temática (42-71%)", "Sin Relación (<42%)"],
             "Cantidad": [
@@ -735,21 +832,19 @@ if "analisis" in st.session_state:
                 resumen["similitudes_altas"],
                 resumen["relaciones_tematicas"],
                 resumen["sin_coincidencias"]
-            ],
-            "Color": ["#10B981", "#3B82F6", "#F59E0B", "#94A3B8"]
+            ]
         })
 
         with col_chart1:
             st.markdown("##### 🍩 Proporción por Categorías")
-            # Gráfico de Dona con Altair
-            donut_chart = alt.Chart(df_distribucion).mark_arc(innerRadius=65, stroke="#FFFFFF", strokeWidth=2).encode(
+            donut_chart = alt.Chart(df_distribucion).mark_arc(innerRadius=65, stroke="#FFFFFF", strokeWidth=3).encode(
                 theta=alt.Theta(field="Cantidad", type="quantitative"),
                 color=alt.Color(
                     field="Categoría",
                     type="nominal",
                     scale=alt.Scale(
                         domain=["Literal (≥95%)", "Alta (72-94%)", "Temática (42-71%)", "Sin Relación (<42%)"],
-                        range=["#10B981", "#3B82F6", "#F59E0B", "#94A3B8"]
+                        range=["#A3E635", "#2251FF", "#FACC15", "#CBD5E1"]
                     ),
                     legend=alt.Legend(orient="bottom", title=None, columns=2)
                 ),
@@ -758,9 +853,8 @@ if "analisis" in st.session_state:
             st.altair_chart(donut_chart, use_container_width=True)
 
         with col_chart2:
-            st.markdown("##### 📊 Cantidad de Temas por Rango")
-            # Gráfico de Barras con Altair
-            bar_chart = alt.Chart(df_distribucion).mark_bar(cornerRadiusTopLeft=8, cornerRadiusTopRight=8).encode(
+            st.markdown("##### 📊 Cantidad de Temas por Nivel")
+            bar_chart = alt.Chart(df_distribucion).mark_bar(cornerRadiusTopLeft=10, cornerRadiusTopRight=10).encode(
                 x=alt.X("Categoría:N", title=None, axis=alt.Axis(labelAngle=0)),
                 y=alt.Y("Cantidad:Q", title="Número de Temas"),
                 color=alt.Color(
@@ -768,7 +862,7 @@ if "analisis" in st.session_state:
                     type="nominal",
                     scale=alt.Scale(
                         domain=["Literal (≥95%)", "Alta (72-94%)", "Temática (42-71%)", "Sin Relación (<42%)"],
-                        range=["#10B981", "#3B82F6", "#F59E0B", "#94A3B8"]
+                        range=["#A3E635", "#2251FF", "#FACC15", "#CBD5E1"]
                     ),
                     legend=None
                 ),
@@ -782,7 +876,6 @@ if "analisis" in st.session_state:
     with tab_matriz:
         st.markdown("#### 📋 Explorador de Parejas Curriculares")
 
-        # Filtros de búsqueda y categoría
         f_col1, f_col2, f_col3 = st.columns([1.2, 1.8, 1])
         with f_col1:
             categoria_seleccionada = st.selectbox(
@@ -794,7 +887,6 @@ if "analisis" in st.session_state:
         with f_col3:
             min_similitud = st.slider("Similitud mínima:", min_value=0, max_value=100, value=0, step=5)
 
-        # Aplicar filtros
         items_filtrados = []
         for r in comparaciones:
             if r["similitud"] < min_similitud:
@@ -810,7 +902,6 @@ if "analisis" in st.session_state:
 
         st.caption(f"Mostrando **{len(items_filtrados)}** de **{len(comparaciones)}** comparaciones evaluadas.")
 
-        # Preparar DataFrame con iconos de estado
         filas_tabla = []
         for r in items_filtrados:
             icono = "🟢" if r["categoria"] == "COINCIDENCIA LITERAL" else \
@@ -865,21 +956,8 @@ if "analisis" in st.session_state:
                 idx_sel = lista_opciones.index(opcion_sel)
                 item = items_filtrados[idx_sel]
 
-                # Card de inspección
-                st.markdown(f"""
-                <div class="inspection-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span style="font-size: 1.1rem; font-weight: 700; color: #1E293B;">Puntuación de Coincidencia: {item['similitud']}%</span>
-                        <span class="badge-pill {'badge-literal' if item['categoria']=='COINCIDENCIA LITERAL' else 'badge-alta' if item['categoria']=='SIMILITUD ALTA' else 'badge-tematica' if item['categoria']=='RELACIÓN TEMÁTICA O PARALELA' else 'badge-sin'}">
-                            {item['categoria']}
-                        </span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-
                 st.progress(item['similitud'] / 100.0)
 
-                # Detalle en dos columnas
                 c_insp1, c_insp2 = st.columns(2)
                 with c_insp1:
                     st.markdown(f"**📄 Documento 1 ({nombre_doc1}):**")
@@ -905,7 +983,6 @@ if "analisis" in st.session_state:
 
         exp_col1, exp_col2 = st.columns(2)
 
-        # Generar CSV en memoria con UTF-8-SIG (compatible con Excel)
         salida_csv = io.StringIO()
         escritor = csv.writer(salida_csv)
         escritor.writerow(["COMPARADOR ACADÉMICO 2.0 - INFORME COMPARATIVO"])
@@ -923,7 +1000,7 @@ if "analisis" in st.session_state:
 
         with exp_col1:
             st.markdown("""
-            <div class="kpi-card" style="text-align: left; padding: 20px;">
+            <div style="background: #FFFFFF; border-radius: 18px; padding: 22px; border: 1px solid #E2E8F0;">
                 <h5 style="margin-bottom: 8px;">📊 Formato CSV (Microsoft Excel)</h5>
                 <p style="font-size: 0.88rem; color: #64748B;">
                     Ideal para abrir directamente en Excel, realizar tablas dinámicas o integrar con otros sistemas de gestión académica.
@@ -940,7 +1017,6 @@ if "analisis" in st.session_state:
                 use_container_width=True
             )
 
-        # Generar TXT estructurado
         salida_txt = io.StringIO()
         salida_txt.write("=" * 80 + "\n")
         salida_txt.write("          COMPARADOR ACADÉMICO 2.0 - INFORME COMPARATIVO\n")
@@ -962,7 +1038,7 @@ if "analisis" in st.session_state:
 
         with exp_col2:
             st.markdown("""
-            <div class="kpi-card" style="text-align: left; padding: 20px;">
+            <div style="background: #FFFFFF; border-radius: 18px; padding: 22px; border: 1px solid #E2E8F0;">
                 <h5 style="margin-bottom: 8px;">📄 Formato TXT Estructurado</h5>
                 <p style="font-size: 0.88rem; color: #64748B;">
                     Documento de texto plano legible, perfecto para anexar como informe técnico o evidencia documental en expedientes.
@@ -977,3 +1053,16 @@ if "analisis" in st.session_state:
                 mime="text/plain",
                 use_container_width=True
             )
+
+# ==============================================================================
+# BOTÓN DE REINICIO GRANDE AL PIE DE PÁGINA (SIEMPRE VISIBLE CUANDO HAY ARCHIVOS)
+# ==============================================================================
+if archivo1 or archivo2 or "analisis" in st.session_state:
+    st.markdown("<br><hr style='border-top: 1px solid #E2E8F0; margin: 2.5rem 0 2rem 0;'>", unsafe_allow_html=True)
+    col_reset_l, col_reset_c, col_reset_r = st.columns([1, 2.5, 1])
+    with col_reset_c:
+        if st.button("🔄 REINICIAR Y CARGAR NUEVOS DOCUMENTOS", type="secondary", use_container_width=True, key="btn_reiniciar_grande"):
+            nuevo_id = st.session_state.get("uploader_key", 0) + 1
+            st.session_state.clear()
+            st.session_state["uploader_key"] = nuevo_id
+            st.rerun()
