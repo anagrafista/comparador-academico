@@ -14,6 +14,7 @@ import re
 import unicodedata
 from difflib import SequenceMatcher
 
+import altair as alt
 import docx
 import pandas as pd
 import streamlit as st
@@ -31,24 +32,95 @@ st.set_page_config(
 # Estilos CSS profesionales
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.2rem;
+    /* Tipografía y contenedor principal */
+    .block-container {
+        padding-top: 1.8rem;
+        padding-bottom: 2.5rem;
+    }
+    
+    /* Hero Header */
+    .hero-banner {
+        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%);
+        border-radius: 16px;
+        padding: 24px 30px;
+        color: #FFFFFF;
+        box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.25);
+        margin-bottom: 1.8rem;
+    }
+    .hero-title {
+        font-size: 2.1rem;
         font-weight: 800;
-        color: #1E3A8A;
-        margin-bottom: 0.2rem;
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
-    .sub-header {
-        font-size: 1.05rem;
-        color: #475569;
-        margin-bottom: 1.5rem;
+    .hero-badge {
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        vertical-align: middle;
     }
-    .metric-card {
-        background-color: #FFFFFF;
-        border-radius: 10px;
-        padding: 16px;
+    .hero-subtitle {
+        font-size: 1.02rem;
+        color: #E2E8F0;
+        margin-bottom: 0px;
+        max-width: 900px;
+        line-height: 1.45;
+    }
+
+    /* Tarjetas de Métricas (KPIs) */
+    .kpi-card {
+        background: #FFFFFF;
+        border-radius: 12px;
+        padding: 16px 14px;
         border: 1px solid #E2E8F0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         text-align: center;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    }
+    .kpi-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 4px;
+    }
+    .kpi-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748B;
+    }
+
+    /* Badges de categorías */
+    .badge-pill {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .badge-literal { background-color: #DEF7EC; color: #03543F; border: 1px solid #84E1BC; }
+    .badge-alta { background-color: #E1EFFE; color: #1E429F; border: 1px solid #A4CAFE; }
+    .badge-tematica { background-color: #FEF08A; color: #713F12; border: 1px solid #FDE047; }
+    .badge-sin { background-color: #F3F4F6; color: #374151; border: 1px solid #D1D5DB; }
+
+    /* Tarjeta de inspección léxica */
+    .inspection-card {
+        background: #F8FAFC;
+        border-radius: 12px;
+        border: 1px solid #E2E8F0;
+        padding: 20px;
+        margin-top: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -467,21 +539,21 @@ if "uploader_key" not in st.session_state:
     st.session_state["uploader_key"] = 0
 
 with st.sidebar:
-    st.image("https://img.icons8.com/fluency/96/diploma.png", width=70)
-    st.title("Comparador 2.0")
-    st.markdown("**Evaluación Curricular de Posgrados**")
+    st.image("https://img.icons8.com/fluency/96/diploma.png", width=65)
+    st.markdown("### Comparador Académico 2.0")
+    st.caption("Sistema de Homologación Curricular")
     st.markdown("---")
 
-    st.markdown("### 📌 Reglas de Extracción")
+    st.markdown("#### 📌 Reglas de Extracción")
     st.markdown("""
-    - **Ámbito exclusivo:** Analiza únicamente el **Plan de Estudios** (omite admisiones, claustrales y metodologías).
+    - **Ámbito exclusivo:** Analiza únicamente el **Plan de Estudios**.
     - **Módulos:** Numeración de primer nivel (`1.`, `2.`).
-    - **Temas principales:** Viñetas de dos niveles (`1.1`, `1.2`).
-    - **Subtemas (`1.1.1`):** Estrictamente excluidos.
+    - **Temas principales:** Viñetas de segundo nivel (`1.1`, `1.2`).
+    - **Subtemas (`1.1.1`):** **Estrictamente excluidos**.
     """)
 
     st.markdown("---")
-    st.markdown("### 🏷️ Categorías")
+    st.markdown("#### 🏷️ Categorías y Umbrales")
     st.markdown("""
     - 🟢 **Coincidencia Literal** (≥ 95%)
     - 🔵 **Similitud Alta** (72% - 94.9%)
@@ -496,27 +568,41 @@ with st.sidebar:
         st.session_state["uploader_key"] = nuevo_id
         st.rerun()
 
-# Encabezado
-st.markdown('<div class="main-header">🎓 COMPARADOR ACADÉMICO 2.0</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Análisis comparativo exclusivo entre temas principales contenidos en el Plan de Estudios de archivos Word (.docx).</div>', unsafe_allow_html=True)
+# Hero Banner
+st.markdown("""
+<div class="hero-banner">
+    <div class="hero-title">
+        <span>🎓 COMPARADOR ACADÉMICO 2.0</span>
+        <span class="hero-badge">Web Edition</span>
+    </div>
+    <p class="hero-subtitle">
+        Contraste algorítmico y matemático entre títulos temáticos contenidos exclusivamente en el
+        <strong>Plan de Estudios</strong> de dosieres y programas académicos en formato Word (.docx).
+    </p>
+</div>
+""", unsafe_allow_html=True)
 
-# Paneles de subida
+# Paneles de subida estilizados
 col_doc1, col_doc2 = st.columns(2)
 
 with col_doc1:
-    st.subheader("📄 Documento 1 (Origen)")
+    st.markdown("##### 📄 Documento 1 (Origen / Base)")
+    st.caption("Dosier del programa cuyos temas se desean contrastar:")
     archivo1 = st.file_uploader(
         "Cargar archivo Word (.docx)",
         type=["docx"],
-        key=f"doc1_uploader_{st.session_state['uploader_key']}"
+        key=f"doc1_uploader_{st.session_state['uploader_key']}",
+        label_visibility="collapsed"
     )
 
 with col_doc2:
-    st.subheader("📄 Documento 2 (Comparación)")
+    st.markdown("##### 📄 Documento 2 (Comparación / Destino)")
+    st.caption("Dosier del programa contra el cual se evaluarán las equivalencias:")
     archivo2 = st.file_uploader(
         "Cargar archivo Word (.docx)",
         type=["docx"],
-        key=f"doc2_uploader_{st.session_state['uploader_key']}"
+        key=f"doc2_uploader_{st.session_state['uploader_key']}",
+        label_visibility="collapsed"
     )
 
 # Procesamiento cuando se cargan los dos documentos
@@ -530,20 +616,20 @@ if archivo1 and archivo2:
 
         col_prev1, col_prev2 = st.columns(2)
         with col_prev1:
-            st.success(f"**{archivo1.name}**: {len(temas_doc1)} temas principales.")
-            with st.expander("Ver temas extraídos"):
+            st.success(f"✅ **{archivo1.name}**: {len(temas_doc1)} temas principales identificados.")
+            with st.expander(f"Ver {len(temas_doc1)} temas de Doc 1"):
                 for t in temas_doc1:
                     st.write(f"- **[{t['modulo_num']}]** {t['tema_num']} - {t['tema_titulo']}")
 
         with col_prev2:
-            st.success(f"**{archivo2.name}**: {len(temas_doc2)} temas principales.")
-            with st.expander("Ver temas extraídos"):
+            st.success(f"✅ **{archivo2.name}**: {len(temas_doc2)} temas principales identificados.")
+            with st.expander(f"Ver {len(temas_doc2)} temas de Doc 2"):
                 for t in temas_doc2:
                     st.write(f"- **[{t['modulo_num']}]** {t['tema_num']} - {t['tema_titulo']}")
 
-        st.markdown("---")
-        if st.button("🔍 EJECUTAR ANÁLISIS COMPARATIVO", type="primary", use_container_width=True):
-            with st.spinner("Comparando sistemáticamente títulos curriculares..."):
+        st.markdown("")
+        if st.button("🚀 EJECUTAR ANÁLISIS COMPARATIVO", type="primary", use_container_width=True):
+            with st.spinner("Ejecutando comparación algorítmica y léxica entre títulos..."):
                 comparaciones, resumen = comparar_temas(temas_doc1, temas_doc2)
                 st.session_state["analisis"] = {
                     "comparaciones": comparaciones,
@@ -556,7 +642,9 @@ if archivo1 and archivo2:
     except Exception as e:
         st.error(f"Error al procesar los documentos: {str(e)}")
 
-# Visualización de resultados
+# ==============================================================================
+# VISUALIZACIÓN DE RESULTADOS CON PESTAÑAS (TABS)
+# ==============================================================================
 if "analisis" in st.session_state:
     datos = st.session_state["analisis"]
     comparaciones = datos["comparaciones"]
@@ -564,129 +652,328 @@ if "analisis" in st.session_state:
     nombre_doc1 = datos["nombre_doc1"]
     nombre_doc2 = datos["nombre_doc2"]
 
-    st.markdown("### 📊 Métricas del Análisis")
-    k1, k2, k3, k4, k5, k6 = st.columns(6)
-    k1.metric("Temas Doc 1", resumen["total_temas_doc1"])
-    k2.metric("Temas Doc 2", resumen["total_temas_doc2"])
-    k3.metric("🟢 Literales", resumen["coincidencias_literales"])
-    k4.metric("🔵 Altas", resumen["similitudes_altas"])
-    k5.metric("🟡 Temáticas", resumen["relaciones_tematicas"])
-    k6.metric("⚪ Sin Relación", resumen["sin_coincidencias"])
-
     st.markdown("---")
-    st.markdown("### 📋 Tabla Comparativa de Temas")
 
-    c_filtro1, c_filtro2 = st.columns([1, 2])
-    with c_filtro1:
-        cat_filtro = st.selectbox(
-            "Filtrar por categoría:",
-            ["Todas las categorías", "COINCIDENCIA LITERAL", "SIMILITUD ALTA", "RELACIÓN TEMÁTICA O PARALELA", "SIN RELACIÓN IDENTIFICADA"]
-        )
-    with c_filtro2:
-        txt_buscar = st.text_input("Buscar por término en los títulos:", "").lower().strip()
+    # Organización en Pestañas Temáticas
+    tab_dashboard, tab_matriz, tab_inspector, tab_exportar = st.tabs([
+        "📊 Tablero & Gráficos",
+        "📋 Matriz Comparativa",
+        "🔍 Inspector Léxico Detallado",
+        "📥 Exportación de Informes"
+    ])
 
-    # Filtrado
-    filtrados = []
-    for r in comparaciones:
-        if cat_filtro != "Todas las categorías" and r["categoria"] != cat_filtro:
-            continue
-        if txt_buscar:
-            if txt_buscar not in r["doc1_tema_titulo"].lower() and txt_buscar not in r["doc2_tema_titulo"].lower():
+    # --------------------------------------------------------------------------
+    # TAB 1: TABLERO & GRÁFICOS
+    # --------------------------------------------------------------------------
+    with tab_dashboard:
+        st.markdown("#### 📈 Indicadores Clave de Convalidación")
+
+        # Tarjetas KPI visuales
+        kp1, kp2, kp3, kp4, kp5, kp6 = st.columns(6)
+        with kp1:
+            st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-value" style="color: #1E3A8A;">{resumen['total_temas_doc1']}</div>
+                <div class="kpi-label">Temas Doc 1</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with kp2:
+            st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-value" style="color: #1E3A8A;">{resumen['total_temas_doc2']}</div>
+                <div class="kpi-label">Temas Doc 2</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with kp3:
+            st.markdown(f"""
+            <div class="kpi-card" style="border-top: 3px solid #10B981;">
+                <div class="kpi-value" style="color: #059669;">{resumen['coincidencias_literales']}</div>
+                <div class="kpi-label">🟢 Literales</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with kp4:
+            st.markdown(f"""
+            <div class="kpi-card" style="border-top: 3px solid #3B82F6;">
+                <div class="kpi-value" style="color: #2563EB;">{resumen['similitudes_altas']}</div>
+                <div class="kpi-label">🔵 Altas</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with kp5:
+            st.markdown(f"""
+            <div class="kpi-card" style="border-top: 3px solid #F59E0B;">
+                <div class="kpi-value" style="color: #D97706;">{resumen['relaciones_tematicas']}</div>
+                <div class="kpi-label">🟡 Temáticas</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with kp6:
+            st.markdown(f"""
+            <div class="kpi-card" style="border-top: 3px solid #94A3B8;">
+                <div class="kpi-value" style="color: #64748B;">{resumen['sin_coincidencias']}</div>
+                <div class="kpi-label">⚪ Sin Relación</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("")
+
+        # Índice de homologación directa
+        total_sustituibles = resumen['coincidencias_literales'] + resumen['similitudes_altas']
+        tasa_sustitucion = round((total_sustituibles / max(1, resumen['total_temas_doc1'])) * 100, 1)
+
+        st.info(f"""
+        💡 **Resumen Ejecutivo:** Un **{tasa_sustitucion}%** de los temas de **{nombre_doc1}** ({total_sustituibles} temas)
+        clasifican con **Coincidencia Literal o Similitud Alta**, lo cual sugiere viabilidad de sustitución/convalidación directa.
+        """)
+
+        st.markdown("#### 📊 Distribución Visual de Coincidencias")
+        col_chart1, col_chart2 = st.columns([1, 1.3])
+
+        # Datos para gráficos
+        df_distribucion = pd.DataFrame({
+            "Categoría": ["Literal (≥95%)", "Alta (72-94%)", "Temática (42-71%)", "Sin Relación (<42%)"],
+            "Cantidad": [
+                resumen["coincidencias_literales"],
+                resumen["similitudes_altas"],
+                resumen["relaciones_tematicas"],
+                resumen["sin_coincidencias"]
+            ],
+            "Color": ["#10B981", "#3B82F6", "#F59E0B", "#94A3B8"]
+        })
+
+        with col_chart1:
+            st.markdown("##### 🍩 Proporción por Categorías")
+            # Gráfico de Dona con Altair
+            donut_chart = alt.Chart(df_distribucion).mark_arc(innerRadius=65, stroke="#FFFFFF", strokeWidth=2).encode(
+                theta=alt.Theta(field="Cantidad", type="quantitative"),
+                color=alt.Color(
+                    field="Categoría",
+                    type="nominal",
+                    scale=alt.Scale(
+                        domain=["Literal (≥95%)", "Alta (72-94%)", "Temática (42-71%)", "Sin Relación (<42%)"],
+                        range=["#10B981", "#3B82F6", "#F59E0B", "#94A3B8"]
+                    ),
+                    legend=alt.Legend(orient="bottom", title=None, columns=2)
+                ),
+                tooltip=[alt.Tooltip("Categoría:N"), alt.Tooltip("Cantidad:Q", title="Temas")]
+            ).properties(height=320)
+            st.altair_chart(donut_chart, use_container_width=True)
+
+        with col_chart2:
+            st.markdown("##### 📊 Cantidad de Temas por Rango")
+            # Gráfico de Barras con Altair
+            bar_chart = alt.Chart(df_distribucion).mark_bar(cornerRadiusTopLeft=8, cornerRadiusTopRight=8).encode(
+                x=alt.X("Categoría:N", title=None, axis=alt.Axis(labelAngle=0)),
+                y=alt.Y("Cantidad:Q", title="Número de Temas"),
+                color=alt.Color(
+                    field="Categoría",
+                    type="nominal",
+                    scale=alt.Scale(
+                        domain=["Literal (≥95%)", "Alta (72-94%)", "Temática (42-71%)", "Sin Relación (<42%)"],
+                        range=["#10B981", "#3B82F6", "#F59E0B", "#94A3B8"]
+                    ),
+                    legend=None
+                ),
+                tooltip=[alt.Tooltip("Categoría:N"), alt.Tooltip("Cantidad:Q")]
+            ).properties(height=320)
+            st.altair_chart(bar_chart, use_container_width=True)
+
+    # --------------------------------------------------------------------------
+    # TAB 2: MATRIZ COMPARATIVA INTERACTIVA
+    # --------------------------------------------------------------------------
+    with tab_matriz:
+        st.markdown("#### 📋 Explorador de Parejas Curriculares")
+
+        # Filtros de búsqueda y categoría
+        f_col1, f_col2, f_col3 = st.columns([1.2, 1.8, 1])
+        with f_col1:
+            categoria_seleccionada = st.selectbox(
+                "Filtrar por Categoría:",
+                ["Todas las categorías", "COINCIDENCIA LITERAL", "SIMILITUD ALTA", "RELACIÓN TEMÁTICA O PARALELA", "SIN RELACIÓN IDENTIFICADA"]
+            )
+        with f_col2:
+            termino_busqueda = st.text_input("🔍 Buscar término o palabra clave:", "").lower().strip()
+        with f_col3:
+            min_similitud = st.slider("Similitud mínima:", min_value=0, max_value=100, value=0, step=5)
+
+        # Aplicar filtros
+        items_filtrados = []
+        for r in comparaciones:
+            if r["similitud"] < min_similitud:
                 continue
-        filtrados.append(r)
+            if categoria_seleccionada != "Todas las categorías" and r["categoria"] != categoria_seleccionada:
+                continue
+            if termino_busqueda:
+                t1 = r["doc1_tema_titulo"].lower()
+                t2 = r["doc2_tema_titulo"].lower()
+                if termino_busqueda not in t1 and termino_busqueda not in t2:
+                    continue
+            items_filtrados.append(r)
 
-    st.caption(f"Mostrando **{len(filtrados)}** de **{len(comparaciones)}** comparaciones evaluadas.")
+        st.caption(f"Mostrando **{len(items_filtrados)}** de **{len(comparaciones)}** comparaciones evaluadas.")
 
-    filas = [{
-        "Módulo Doc 1": r["doc1_modulo"],
-        "Tema Doc 1": r["doc1_tema_titulo"],
-        "Módulo Doc 2": r["doc2_modulo"],
-        "Tema Doc 2": r["doc2_tema_titulo"],
-        "Similitud": f"{r['similitud']}%",
-        "Clasificación": r["categoria"],
-        "Recomendación": r["recomendacion"]
-    } for r in filtrados]
+        # Preparar DataFrame con iconos de estado
+        filas_tabla = []
+        for r in items_filtrados:
+            icono = "🟢" if r["categoria"] == "COINCIDENCIA LITERAL" else \
+                    "🔵" if r["categoria"] == "SIMILITUD ALTA" else \
+                    "🟡" if r["categoria"] == "RELACIÓN TEMÁTICA O PARALELA" else "⚪"
 
-    df_vista = pd.DataFrame(filas)
-    if not df_vista.empty:
-        st.dataframe(df_vista, use_container_width=True, height=450)
-    else:
-        st.info("No hay temas que coincidan con los filtros aplicados.")
+            filas_tabla.append({
+                "Estado": icono,
+                "Similitud": f"{r['similitud']}%",
+                "Módulo Doc 1": r["doc1_modulo"],
+                "Tema Doc 1": r["doc1_tema_titulo"],
+                "Módulo Doc 2": r["doc2_modulo"],
+                "Tema Doc 2": r["doc2_tema_titulo"],
+                "Categoría Oficial": r["categoria"],
+                "Recomendación": r["recomendacion"]
+            })
 
-    # Detalle técnico
-    st.markdown("### 🔍 Justificación Textual de Coincidencias")
-    opciones = [
-        f"[{r['similitud']}%] {r['doc1_tema_titulo']}  ⟷  {r['doc2_tema_titulo']}"
-        for r in filtrados[:50]
-    ]
-    if opciones:
-        sel = st.selectbox("Seleccione una relación para examinar:", opciones)
-        if sel:
-            idx = opciones.index(sel)
-            item = filtrados[idx]
-            st.info(f"""
-            **Doc 1:** [{item['doc1_modulo']}] {item['doc1_tema_titulo']}  
-            **Doc 2:** [{item['doc2_modulo']}] {item['doc2_tema_titulo']}  
-            **Similitud:** `{item['similitud']}%` ({item['categoria']})  
-            **Recomendación:** *{item['recomendacion']}*  
-            **Explicación técnica:** {item['explicacion']}
-            """)
+        df_tabla = pd.DataFrame(filas_tabla)
 
-    # Exportación
-    st.markdown("---")
-    st.markdown("### 📥 Exportar Resultados")
-    col_e1, col_e2 = st.columns(2)
+        if not df_tabla.empty:
+            st.dataframe(
+                df_tabla,
+                use_container_width=True,
+                height=480,
+                column_config={
+                    "Estado": st.column_config.TextColumn(" ", width="small"),
+                    "Similitud": st.column_config.TextColumn("Similitud", width="small"),
+                    "Tema Doc 1": st.column_config.TextColumn("Tema Doc 1", width="large"),
+                    "Tema Doc 2": st.column_config.TextColumn("Tema Doc 2", width="large"),
+                    "Categoría Oficial": st.column_config.TextColumn("Categoría", width="medium"),
+                    "Recomendación": st.column_config.TextColumn("Recomendación Orientativa", width="large")
+                }
+            )
+        else:
+            st.warning("No se encontraron temas con los criterios de filtro aplicados.")
 
-    # 1. CSV
-    salida_csv = io.StringIO()
-    escritor = csv.writer(salida_csv)
-    escritor.writerow(["COMPARADOR ACADÉMICO 2.0 - INFORME COMPARATIVO"])
-    escritor.writerow(["Documento 1", nombre_doc1])
-    escritor.writerow(["Documento 2", nombre_doc2])
-    escritor.writerow([])
-    escritor.writerow(["Módulo Doc 1", "Tema Doc 1", "Módulo Doc 2", "Tema Doc 2", "Similitud (%)", "Clasificación", "Recomendación", "Explicación"])
-    for r in comparaciones:
-        escritor.writerow([
-            r["doc1_modulo"], r["doc1_tema_titulo"],
-            r["doc2_modulo"], r["doc2_tema_titulo"],
-            f"{r['similitud']}%", r["categoria"], r["recomendacion"], r["explicacion"]
-        ])
-    csv_datos = salida_csv.getvalue().encode("utf-8-sig")
+    # --------------------------------------------------------------------------
+    # TAB 3: INSPECTOR LÉXICO DETALLADO
+    # --------------------------------------------------------------------------
+    with tab_inspector:
+        st.markdown("#### 🔍 Análisis Profundo de Justificación Textual")
+        st.caption("Selecciona cualquier pareja de temas para inspeccionar los términos compartidos y la justificación algorítmica:")
 
-    with col_e1:
-        st.download_button(
-            label="📊 Descargar Informe CSV (Excel)",
-            data=csv_datos,
-            file_name="informe_comparador_academico.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
+        lista_opciones = [
+            f"[{r['similitud']}%] {r['doc1_tema_titulo']}  ⟷  {r['doc2_tema_titulo']}"
+            for r in items_filtrados[:60]
+        ] if items_filtrados else []
 
-    # 2. TXT
-    salida_txt = io.StringIO()
-    salida_txt.write("=" * 80 + "\n")
-    salida_txt.write("          COMPARADOR ACADÉMICO 2.0 - INFORME COMPARATIVO\n")
-    salida_txt.write("=" * 80 + "\n\n")
-    salida_txt.write(f"Documento 1: {nombre_doc1}\n")
-    salida_txt.write(f"Documento 2: {nombre_doc2}\n")
-    salida_txt.write(f"Coincidencias Literales: {resumen['coincidencias_literales']}\n")
-    salida_txt.write(f"Similitudes Altas:       {resumen['similitudes_altas']}\n")
-    salida_txt.write(f"Relaciones Temáticas:    {resumen['relaciones_tematicas']}\n")
-    salida_txt.write(f"Sin Relación:            {resumen['sin_coincidencias']}\n\n")
-    salida_txt.write("-" * 80 + "\nDETALLE DE COMPARACIONES\n" + "-" * 80 + "\n\n")
-    for i, r in enumerate(comparaciones, 1):
-        salida_txt.write(f"[{i}] {r['similitud']}% | {r['categoria']}\n")
-        salida_txt.write(f"    Doc 1: [{r['doc1_modulo']}] {r['doc1_tema_titulo']}\n")
-        salida_txt.write(f"    Doc 2: [{r['doc2_modulo']}] {r['doc2_tema_titulo']}\n")
-        salida_txt.write(f"    Recomendación: {r['recomendacion']}\n")
-        salida_txt.write(f"    Explicación:   {r['explicacion']}\n\n")
-    txt_datos = salida_txt.getvalue().encode("utf-8")
+        if lista_opciones:
+            opcion_sel = st.selectbox("Seleccione tema a inspeccionar:", lista_opciones)
+            if opcion_sel:
+                idx_sel = lista_opciones.index(opcion_sel)
+                item = items_filtrados[idx_sel]
 
-    with col_e2:
-        st.download_button(
-            label="📄 Descargar Informe TXT",
-            data=txt_datos,
-            file_name="informe_comparador_academico.txt",
-            mime="text/plain",
-            use_container_width=True
-        )
+                # Card de inspección
+                st.markdown(f"""
+                <div class="inspection-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 1.1rem; font-weight: 700; color: #1E293B;">Puntuación de Coincidencia: {item['similitud']}%</span>
+                        <span class="badge-pill {'badge-literal' if item['categoria']=='COINCIDENCIA LITERAL' else 'badge-alta' if item['categoria']=='SIMILITUD ALTA' else 'badge-tematica' if item['categoria']=='RELACIÓN TEMÁTICA O PARALELA' else 'badge-sin'}">
+                            {item['categoria']}
+                        </span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.progress(item['similitud'] / 100.0)
+
+                # Detalle en dos columnas
+                c_insp1, c_insp2 = st.columns(2)
+                with c_insp1:
+                    st.markdown(f"**📄 Documento 1 ({nombre_doc1}):**")
+                    st.info(f"**Módulo:** {item['doc1_modulo']}\n\n**Título:** {item['doc1_tema_titulo']}")
+
+                with c_insp2:
+                    st.markdown(f"**📄 Documento 2 ({nombre_doc2}):**")
+                    st.info(f"**Módulo:** {item['doc2_modulo']}\n\n**Título:** {item['doc2_tema_titulo']}")
+
+                st.markdown("##### 💬 Justificación Léxica y Semántica")
+                st.write(f"🔎 **Términos compartidos:** {item['explicacion']}")
+                st.write(f"🎯 **Recomendación Académica:** *{item['recomendacion']}*")
+
+        else:
+            st.info("Ajusta los filtros en la pestaña 'Matriz Comparativa' para inspeccionar resultados.")
+
+    # --------------------------------------------------------------------------
+    # TAB 4: EXPORTACIÓN DE INFORMES
+    # --------------------------------------------------------------------------
+    with tab_exportar:
+        st.markdown("#### 📥 Descargar Resultados del Análisis")
+        st.caption("Exporta la matriz completa de comparaciones y estadísticas para su uso en Excel o archivo de texto:")
+
+        exp_col1, exp_col2 = st.columns(2)
+
+        # Generar CSV en memoria con UTF-8-SIG (compatible con Excel)
+        salida_csv = io.StringIO()
+        escritor = csv.writer(salida_csv)
+        escritor.writerow(["COMPARADOR ACADÉMICO 2.0 - INFORME COMPARATIVO"])
+        escritor.writerow(["Documento 1", nombre_doc1])
+        escritor.writerow(["Documento 2", nombre_doc2])
+        escritor.writerow([])
+        escritor.writerow(["Módulo Doc 1", "Tema Doc 1", "Módulo Doc 2", "Tema Doc 2", "Similitud (%)", "Clasificación", "Recomendación", "Explicación"])
+        for r in comparaciones:
+            escritor.writerow([
+                r["doc1_modulo"], r["doc1_tema_titulo"],
+                r["doc2_modulo"], r["doc2_tema_titulo"],
+                f"{r['similitud']}%", r["categoria"], r["recomendacion"], r["explicacion"]
+            ])
+        csv_datos = salida_csv.getvalue().encode("utf-8-sig")
+
+        with exp_col1:
+            st.markdown("""
+            <div class="kpi-card" style="text-align: left; padding: 20px;">
+                <h5 style="margin-bottom: 8px;">📊 Formato CSV (Microsoft Excel)</h5>
+                <p style="font-size: 0.88rem; color: #64748B;">
+                    Ideal para abrir directamente en Excel, realizar tablas dinámicas o integrar con otros sistemas de gestión académica.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            st.markdown("")
+            st.download_button(
+                label="📥 Descargar Informe CSV (Excel)",
+                data=csv_datos,
+                file_name="informe_comparador_academico.csv",
+                mime="text/csv",
+                type="primary",
+                use_container_width=True
+            )
+
+        # Generar TXT estructurado
+        salida_txt = io.StringIO()
+        salida_txt.write("=" * 80 + "\n")
+        salida_txt.write("          COMPARADOR ACADÉMICO 2.0 - INFORME COMPARATIVO\n")
+        salida_txt.write("=" * 80 + "\n\n")
+        salida_txt.write(f"Documento 1: {nombre_doc1}\n")
+        salida_txt.write(f"Documento 2: {nombre_doc2}\n")
+        salida_txt.write(f"Coincidencias Literales: {resumen['coincidencias_literales']}\n")
+        salida_txt.write(f"Similitudes Altas:       {resumen['similitudes_altas']}\n")
+        salida_txt.write(f"Relaciones Temáticas:    {resumen['relaciones_tematicas']}\n")
+        salida_txt.write(f"Sin Relación:            {resumen['sin_coincidencias']}\n\n")
+        salida_txt.write("-" * 80 + "\nDETALLE DE COMPARACIONES\n" + "-" * 80 + "\n\n")
+        for i, r in enumerate(comparaciones, 1):
+            salida_txt.write(f"[{i}] {r['similitud']}% | {r['categoria']}\n")
+            salida_txt.write(f"    Doc 1: [{r['doc1_modulo']}] {r['doc1_tema_titulo']}\n")
+            salida_txt.write(f"    Doc 2: [{r['doc2_modulo']}] {r['doc2_tema_titulo']}\n")
+            salida_txt.write(f"    Recomendación: {r['recomendacion']}\n")
+            salida_txt.write(f"    Explicación:   {r['explicacion']}\n\n")
+        txt_datos = salida_txt.getvalue().encode("utf-8")
+
+        with exp_col2:
+            st.markdown("""
+            <div class="kpi-card" style="text-align: left; padding: 20px;">
+                <h5 style="margin-bottom: 8px;">📄 Formato TXT Estructurado</h5>
+                <p style="font-size: 0.88rem; color: #64748B;">
+                    Documento de texto plano legible, perfecto para anexar como informe técnico o evidencia documental en expedientes.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            st.markdown("")
+            st.download_button(
+                label="📥 Descargar Informe TXT",
+                data=txt_datos,
+                file_name="informe_comparador_academico.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
